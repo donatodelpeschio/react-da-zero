@@ -1,0 +1,2062 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corso React Completo</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0f14;
+            --surface: #13161f;
+            --surface2: #1a1e2a;
+            --border: #252a38;
+            --accent: #61dafb;
+            --accent2: #f7df1e;
+            --accent3: #ff6b6b;
+            --text: #e8eaf0;
+            --text-muted: #6b7280;
+            --text-dim: #9ca3af;
+            --green: #4ade80;
+            --purple: #a78bfa;
+            --sidebar-width: 300px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            font-size: 15px;
+        }
+
+        /* SIDEBAR */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        #sidebar-header {
+            padding: 24px 20px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        #sidebar-header h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+        }
+
+        #sidebar-header p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        #progress-bar-wrap {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        #progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        #progress-bar {
+            height: 3px;
+            background: var(--border);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--purple));
+            border-radius: 99px;
+            transition: width 0.4s ease;
+        }
+
+        #nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        #nav::-webkit-scrollbar { width: 4px; }
+        #nav::-webkit-scrollbar-track { background: transparent; }
+        #nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+        .module-group { margin-bottom: 4px; }
+
+        .module-title {
+            padding: 10px 20px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-family: 'Syne', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+        }
+
+        .module-title .mod-icon {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .module-title.active .mod-icon { background: var(--accent); }
+
+        .lesson-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 8px 20px 8px 30px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.15s;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .lesson-btn:hover { background: var(--surface2); color: var(--text); }
+
+        .lesson-btn.active {
+            background: var(--surface2);
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .lesson-btn.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--accent);
+            border-radius: 0 2px 2px 0;
+        }
+
+        .lesson-btn.done .check {
+            color: var(--green);
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .check { color: var(--border); font-size: 11px; flex-shrink: 0; }
+        .lesson-num { color: var(--text-muted); font-size: 11px; font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+
+        /* MAIN */
+        #main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #topbar {
+            padding: 16px 32px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            flex-shrink: 0;
+        }
+
+        #topbar-left { display: flex; flex-direction: column; gap: 2px; }
+        #breadcrumb { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        #lesson-title-top { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); }
+
+        #topbar-right { display: flex; gap: 10px; align-items: center; }
+
+        .nav-btn {
+            padding: 8px 18px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text-dim);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .nav-btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+        .nav-btn.primary:hover { opacity: 0.9; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        #content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 48px;
+            max-width: 860px;
+        }
+
+        #content::-webkit-scrollbar { width: 6px; }
+        #content::-webkit-scrollbar-track { background: transparent; }
+        #content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+        /* LESSON CONTENT STYLES */
+        .lesson-content h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+            line-height: 1.2;
+        }
+
+        .lesson-content .subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 36px;
+            line-height: 1.6;
+        }
+
+        .lesson-content h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            margin: 36px 0 12px;
+            letter-spacing: -0.3px;
+        }
+
+        .lesson-content h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent);
+            margin: 28px 0 10px;
+        }
+
+        .lesson-content p {
+            color: var(--text-dim);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .lesson-content strong { color: var(--text); font-weight: 600; }
+
+        .lesson-content ul, .lesson-content ol {
+            padding-left: 20px;
+            margin-bottom: 16px;
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+
+        .lesson-content li { margin-bottom: 4px; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent2);
+        }
+
+        pre {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 24px;
+            overflow-x: auto;
+            margin: 16px 0 24px;
+            position: relative;
+        }
+
+        pre::-webkit-scrollbar { height: 4px; }
+        pre::-webkit-scrollbar-track { background: transparent; }
+        pre::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: var(--text);
+            font-size: 13.5px;
+            line-height: 1.7;
+        }
+
+        .kw { color: #c792ea; }   /* keywords */
+        .fn { color: #82aaff; }   /* functions */
+        .str { color: #c3e88d; }  /* strings */
+        .num { color: #f78c6c; }  /* numbers */
+        .cmt { color: #546e7a; font-style: italic; }  /* comments */
+        .tag { color: #f07178; }  /* JSX tags */
+        .attr { color: #ffcb6b; } /* JSX attrs */
+        .jsx-expr { color: var(--accent); } /* JSX expressions */
+
+        .callout {
+            border-left: 3px solid var(--accent);
+            background: rgba(97,218,251,0.05);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            font-size: 14px;
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+
+        .callout.warn {
+            border-color: var(--accent2);
+            background: rgba(247,223,30,0.05);
+        }
+
+        .callout.error {
+            border-color: var(--accent3);
+            background: rgba(255,107,107,0.05);
+        }
+
+        .callout strong { color: var(--text); }
+
+        .checklist {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 28px 0;
+        }
+
+        .checklist h4 {
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--green);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .checklist li {
+            list-style: none;
+            padding-left: 0;
+            color: var(--text-dim);
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .checklist li::before { content: '✅ '; }
+
+        .done-banner {
+            background: linear-gradient(135deg, rgba(97,218,251,0.1), rgba(167,139,250,0.1));
+            border: 1px solid rgba(97,218,251,0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 36px 0;
+            text-align: center;
+        }
+
+        .done-banner h3 { font-family: 'Syne', sans-serif; font-size: 22px; color: var(--accent); margin-bottom: 8px; }
+        .done-banner p { color: var(--text-dim); font-size: 14px; }
+
+        .exercise {
+            background: rgba(167,139,250,0.08);
+            border: 1px solid rgba(167,139,250,0.2);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 28px 0;
+        }
+
+        .exercise h4 { font-family: 'Syne', sans-serif; color: var(--purple); font-size: 14px; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .exercise p { color: var(--text-dim); font-size: 14px; line-height: 1.7; margin: 0; }
+
+        hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+        .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+        .tag-pill {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 3px 10px;
+            border-radius: 99px;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            #sidebar { display: none; }
+            #content { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav id="sidebar">
+    <div id="sidebar-header">
+        <h1>⚛ Corso React</h1>
+        <p>// corso completo italiano</p>
+    </div>
+    <div id="progress-bar-wrap">
+        <div id="progress-label">
+            <span>Progresso</span>
+            <span id="progress-text">0 / 23</span>
+        </div>
+        <div id="progress-bar"><div id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div id="nav"></div>
+</nav>
+
+<div id="main">
+    <div id="topbar">
+        <div id="topbar-left">
+            <div id="breadcrumb"></div>
+            <div id="lesson-title-top"></div>
+        </div>
+        <div id="topbar-right">
+            <button class="nav-btn" id="btn-prev" onclick="navigate(-1)">← Precedente</button>
+            <button class="nav-btn primary" id="btn-next" onclick="navigate(1)">Successiva →</button>
+        </div>
+    </div>
+    <div id="content"></div>
+</div>
+
+<script>
+    const LESSONS = [
+        // ── MODULO 1 ──────────────────────────────────────────────
+        {
+            module: "Modulo 1 — Fondamentali",
+            title: "Cos'è React?",
+            tags: ["teoria", "virtual dom", "jsx"],
+            content: `
+<h1>Cos'è React?</h1>
+<p class="subtitle">Il problema che risolve, i concetti chiave e come funziona internamente.</p>
+<div class="tag-row"><span class="tag-pill">teoria</span><span class="tag-pill">virtual dom</span><span class="tag-pill">jsx</span></div>
+
+<h2>Che problema risolve?</h2>
+<p>Immagina di dover aggiornare una pagina ogni volta che cambia un dato — un contatore, un carrello, una lista messaggi. Con JavaScript puro dovresti trovare ogni elemento nel DOM e aggiornarlo manualmente. Con app complesse, questo diventa un inferno di bug.</p>
+<p><strong>React risolve questo</strong>: tu descrivi <em>come deve apparire</em> l'interfaccia in base ai dati, e React aggiorna il DOM automaticamente quando i dati cambiano.</p>
+
+<h2>I 3 concetti chiave</h2>
+
+<h3>1. Componenti</h3>
+<p>L'interfaccia è divisa in pezzi riutilizzabili chiamati componenti. Un bottone, una navbar, una card — ognuno è un componente indipendente.</p>
+
+<h3>2. Virtual DOM</h3>
+<p>React non tocca subito il DOM reale. Prima crea una copia virtuale in memoria, calcola le differenze (<em>diffing</em>), e aggiorna solo ciò che è cambiato. Questo lo rende veloce.</p>
+
+<h3>3. JSX</h3>
+<p>Una sintassi che ti permette di scrivere HTML dentro JavaScript. Non è HTML puro — React lo trasforma in chiamate JavaScript.</p>
+
+<pre><code><span class="cmt">// JSX — quello che scrivi tu</span>
+<span class="kw">const</span> elemento = <span class="tag">&lt;h1&gt;</span>Ciao Mondo!<span class="tag">&lt;/h1&gt;</span>;
+
+<span class="cmt">// Quello che React produce internamente</span>
+<span class="kw">const</span> elemento = React.<span class="fn">createElement</span>(<span class="str">"h1"</span>, <span class="kw">null</span>, <span class="str">"Ciao Mondo!"</span>);</code></pre>
+
+<h2>Il flusso di React</h2>
+<pre><code>Dati cambiano → React ricalcola il Virtual DOM
+             → Confronta con il DOM precedente
+             → Aggiorna SOLO le parti cambiate nel DOM reale</code></pre>
+
+<h2>Setup: crea il tuo primo progetto</h2>
+<p>Assicurati di avere <strong>Node.js</strong> installato, poi esegui nel terminale:</p>
+<pre><code>npm create vite@latest mio-primo-react -- --template react
+cd mio-primo-react
+npm install
+npm run dev</code></pre>
+<p>Apri il browser su <code>http://localhost:5173</code> — React è in esecuzione! 🎉</p>
+
+<h2>La struttura del progetto</h2>
+<pre><code>mio-primo-react/
+├── src/
+│   ├── App.jsx        <span class="cmt">← componente principale</span>
+│   ├── main.jsx       <span class="cmt">← punto di ingresso</span>
+│   └── index.css
+├── index.html
+└── package.json</code></pre>
+
+<pre><code><span class="cmt">// main.jsx — monta App dentro index.html</span>
+<span class="kw">import</span> { StrictMode } <span class="kw">from</span> <span class="str">'react'</span>
+<span class="kw">import</span> { createRoot } <span class="kw">from</span> <span class="str">'react-dom/client'</span>
+<span class="kw">import</span> App <span class="kw">from</span> <span class="str">'./App.jsx'</span>
+
+<span class="fn">createRoot</span>(document.<span class="fn">getElementById</span>(<span class="str">'root'</span>)).<span class="fn">render</span>(
+  <span class="tag">&lt;StrictMode&gt;</span>
+    <span class="tag">&lt;App /&gt;</span>
+  <span class="tag">&lt;/StrictMode&gt;</span>
+)</code></pre>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Cosa è React e perché esiste</li>
+<li>Cosa sono componenti, Virtual DOM e JSX</li>
+<li>Come creare un progetto con Vite</li>
+</ul></div>`
+        },
+        {
+            module: "Modulo 1 — Fondamentali",
+            title: "Il tuo primo componente",
+            tags: ["componenti", "jsx", "map"],
+            content: `
+<h1>Il tuo primo componente</h1>
+<p class="subtitle">Struttura, regole JSX e come renderizzare liste.</p>
+
+<h2>Cos'è un componente?</h2>
+<p>Un componente è semplicemente <strong>una funzione JavaScript che restituisce JSX</strong>.</p>
+<pre><code><span class="kw">function</span> <span class="fn">Saluto</span>() {
+  <span class="kw">return</span> <span class="tag">&lt;h1&gt;</span>Ciao Mondo!<span class="tag">&lt;/h1&gt;</span>;
+}</code></pre>
+
+<h2>Regole fondamentali</h2>
+
+<h3>1. Il nome inizia sempre con la maiuscola</h3>
+<pre><code><span class="kw">function</span> <span class="fn">mioComponente</span>() { ... } <span class="cmt">// ❌ sbagliato</span>
+<span class="kw">function</span> <span class="fn">MioComponente</span>() { ... } <span class="cmt">// ✅ corretto</span></code></pre>
+
+<h3>2. Un solo elemento radice</h3>
+<pre><code><span class="cmt">// ❌ Due elementi radice — errore</span>
+<span class="kw">return</span> (
+  <span class="tag">&lt;h1&gt;</span>Titolo<span class="tag">&lt;/h1&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Testo<span class="tag">&lt;/p&gt;</span>
+)
+
+<span class="cmt">// ✅ Fragment — non aggiunge nodi al DOM</span>
+<span class="kw">return</span> (
+  <span class="tag">&lt;&gt;</span>
+    <span class="tag">&lt;h1&gt;</span>Titolo<span class="tag">&lt;/h1&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Testo<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;/&gt;</span>
+)</code></pre>
+
+<h3>3. JSX ≠ HTML</h3>
+<pre><code><span class="cmt">// HTML:  class="box"  →  JSX:</span>
+<span class="tag">&lt;div</span> <span class="attr">className</span>=<span class="str">"box"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/div&gt;</span>
+
+<span class="cmt">// HTML:  for="nome"  →  JSX:</span>
+<span class="tag">&lt;label</span> <span class="attr">htmlFor</span>=<span class="str">"nome"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/label&gt;</span>
+
+<span class="cmt">// I tag vuoti vanno sempre chiusi:</span>
+<span class="tag">&lt;input /&gt;</span>
+<span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="str">"..."</span> <span class="attr">alt</span>=<span class="str">"..."</span> <span class="tag">/&gt;</span></code></pre>
+
+<h2>Componenti riutilizzabili</h2>
+<pre><code><span class="kw">function</span> <span class="fn">Profilo</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="str">"https://i.pravatar.cc/100"</span> <span class="attr">alt</span>=<span class="str">"avatar"</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;h2&gt;</span>Mario Rossi<span class="tag">&lt;/h2&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Sviluppatore React 🚀<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;Profilo /&gt;</span> <span class="cmt">// usato 3 volte!</span>
+      <span class="tag">&lt;Profilo /&gt;</span>
+      <span class="tag">&lt;Profilo /&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<h2>Espressioni JavaScript in JSX</h2>
+<pre><code><span class="kw">function</span> <span class="fn">Saluto</span>() {
+  <span class="kw">const</span> nome = <span class="str">"Mario"</span>;
+  <span class="kw">const</span> ora = <span class="kw">new</span> <span class="fn">Date</span>().<span class="fn">getHours</span>();
+  <span class="kw">const</span> msg = ora &lt; <span class="num">12</span> ? <span class="str">"Buongiorno"</span> : <span class="str">"Buonasera"</span>;
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;h1&gt;</span><span class="jsx-expr">{msg}</span>, <span class="jsx-expr">{nome}</span>!<span class="tag">&lt;/h1&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Sono le <span class="jsx-expr">{ora}</span>:00<span class="tag">&lt;/p&gt;</span>
+      <span class="tag">&lt;p&gt;</span>2 + 2 = <span class="jsx-expr">{2 + 2}</span><span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<h2>Renderizzare liste</h2>
+<pre><code><span class="kw">function</span> <span class="fn">ListaFrutti</span>() {
+  <span class="kw">const</span> frutti = [<span class="str">"🍎 Mela"</span>, <span class="str">"🍌 Banana"</span>, <span class="str">"🍊 Arancia"</span>];
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;ul&gt;</span>
+      <span class="jsx-expr">{frutti.<span class="fn">map</span>((frutto, index) => (</span>
+        <span class="tag">&lt;li</span> <span class="attr">key</span>=<span class="jsx-expr">{index}</span><span class="tag">&gt;</span><span class="jsx-expr">{frutto}</span><span class="tag">&lt;/li&gt;</span>
+      <span class="jsx-expr">))}</span>
+    <span class="tag">&lt;/ul&gt;</span>
+  );
+}</code></pre>
+<div class="callout warn"><strong>⚠️ key obbligatoria</strong> — la prop <code>key</code> è richiesta nelle liste. Aiuta React a identificare ogni elemento. Usa sempre un ID univoco quando disponibile.</div>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Come creare e usare un componente</li>
+<li>Le regole di JSX</li>
+<li>Come usare espressioni JavaScript in JSX</li>
+<li>Come renderizzare liste con .map()</li>
+</ul></div>`
+        },
+        {
+            module: "Modulo 1 — Fondamentali",
+            title: "Props",
+            tags: ["props", "dati", "children"],
+            content: `
+<h1>Props</h1>
+<p class="subtitle">Passare dati ai componenti per renderli dinamici e riutilizzabili.</p>
+
+<h2>Cos'è una prop?</h2>
+<p>Le <strong>props</strong> (proprietà) servono a passare dati dall'esterno al componente. Funzionano come attributi HTML, ma puoi passare qualsiasi valore JavaScript.</p>
+
+<h2>Sintassi base</h2>
+<pre><code><span class="cmt">// Il componente RICEVE le props come argomento</span>
+<span class="kw">function</span> <span class="fn">Profilo</span>(props) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="jsx-expr">{props.avatar}</span> <span class="attr">alt</span>=<span class="str">"avatar"</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;h2&gt;</span><span class="jsx-expr">{props.nome}</span><span class="tag">&lt;/h2&gt;</span>
+      <span class="tag">&lt;p&gt;</span><span class="jsx-expr">{props.ruolo}</span><span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}
+
+<span class="cmt">// Il componente PADRE passa le props</span>
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;Profilo</span>
+        <span class="attr">nome</span>=<span class="str">"Mario Rossi"</span>
+        <span class="attr">ruolo</span>=<span class="str">"Frontend Developer"</span>
+        <span class="attr">avatar</span>=<span class="str">"https://i.pravatar.cc/100?img=1"</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;Profilo</span>
+        <span class="attr">nome</span>=<span class="str">"Giulia Bianchi"</span>
+        <span class="attr">ruolo</span>=<span class="str">"UX Designer"</span>
+        <span class="attr">avatar</span>=<span class="str">"https://i.pravatar.cc/100?img=2"</span>
+      <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<h2>Destrutturazione (modo più comune)</h2>
+<pre><code><span class="cmt">// ❌ Verboso</span>
+<span class="kw">function</span> <span class="fn">Profilo</span>(props) {
+  <span class="kw">return</span> <span class="tag">&lt;h2&gt;</span><span class="jsx-expr">{props.nome}</span><span class="tag">&lt;/h2&gt;</span>;
+}
+
+<span class="cmt">// ✅ Più pulito e comune</span>
+<span class="kw">function</span> <span class="fn">Profilo</span>({ nome, ruolo, avatar }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="jsx-expr">{avatar}</span> <span class="attr">alt</span>=<span class="str">"avatar"</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;h2&gt;</span><span class="jsx-expr">{nome}</span><span class="tag">&lt;/h2&gt;</span>
+      <span class="tag">&lt;p&gt;</span><span class="jsx-expr">{ruolo}</span><span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<h2>Props di default</h2>
+<pre><code><span class="kw">function</span> <span class="fn">Profilo</span>({
+  nome,
+  ruolo = <span class="str">"Utente"</span>,
+  avatar = <span class="str">"https://i.pravatar.cc/100"</span>
+}) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="jsx-expr">{avatar}</span> <span class="attr">alt</span>=<span class="str">"avatar"</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;h2&gt;</span><span class="jsx-expr">{nome}</span><span class="tag">&lt;/h2&gt;</span>
+      <span class="tag">&lt;p&gt;</span><span class="jsx-expr">{ruolo}</span><span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}
+
+<span class="cmt">// ruolo e avatar useranno i valori di default</span>
+<span class="tag">&lt;Profilo</span> <span class="attr">nome</span>=<span class="str">"Anonimo"</span> <span class="tag">/&gt;</span></code></pre>
+
+<h2>Tipi di dati nelle props</h2>
+<pre><code><span class="tag">&lt;Scheda</span>
+  <span class="attr">titolo</span>=<span class="str">"React"</span>              <span class="cmt">// stringa</span>
+  <span class="attr">voti</span>=<span class="jsx-expr">{9.5}</span>                  <span class="cmt">// numero</span>
+  <span class="attr">attivo</span>=<span class="jsx-expr">{true}</span>               <span class="cmt">// booleano</span>
+  <span class="attr">colori</span>=<span class="jsx-expr">{["#61dafb", "#fff"]}</span> <span class="cmt">// array</span>
+  <span class="attr">onClick</span>=<span class="jsx-expr">{() => alert("Ciao!")}</span> <span class="cmt">// funzione</span>
+<span class="tag">/&gt;</span></code></pre>
+
+<h2>La prop speciale: children</h2>
+<pre><code><span class="kw">function</span> <span class="fn">Riquadro</span>({ children, colore = <span class="str">"#f0f0f0"</span> }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div</span> <span class="attr">style</span>=<span class="jsx-expr">{{ background: colore, padding: "1rem" }}</span><span class="tag">&gt;</span>
+      <span class="jsx-expr">{children}</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}
+
+<span class="cmt">// Utilizzo — tutto dentro i tag diventa children</span>
+<span class="tag">&lt;Riquadro</span> <span class="attr">colore</span>=<span class="str">"#e8f4fd"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h2&gt;</span>Titolo<span class="tag">&lt;/h2&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Qualsiasi contenuto qui dentro!<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;/Riquadro&gt;</span></code></pre>
+
+<div class="callout error"><strong>⚠️ Le props sono in sola lettura!</strong> Un componente non deve mai modificare le proprie props. I dati fluiscono sempre dall'alto verso il basso (dal padre al figlio) — questo si chiama <strong>flusso unidirezionale</strong>.</div>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Cosa sono le props e come passarle</li>
+<li>Come destrutturarle</li>
+<li>Come impostare valori di default</li>
+<li>Che tipo di dati puoi passare</li>
+<li>La prop speciale children</li>
+</ul></div>`
+        },
+        {
+            module: "Modulo 1 — Fondamentali",
+            title: "State con useState",
+            tags: ["useState", "state", "re-render"],
+            content: `
+<h1>State con useState</h1>
+<p class="subtitle">Dati interni che cambiano nel tempo e fanno aggiornare l'interfaccia.</p>
+
+<h2>Cos'è lo state?</h2>
+<p>Le props vengono dall'esterno e sono immutabili. Lo <strong>state</strong> è un dato <strong>interno</strong> al componente che può cambiare. Quando cambia, React <strong>ri-renderizza automaticamente</strong> il componente.</p>
+
+<h2>Sintassi base</h2>
+<pre><code><span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Contatore</span>() {
+  <span class="kw">const</span> [contatore, setContatore] = <span class="fn">useState</span>(<span class="num">0</span>);
+  <span class="cmt">//     ^valore    ^funzione setter   ^valore iniziale</span>
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Valore: <span class="jsx-expr">{contatore}</span><span class="tag">&lt;/p&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{() => setContatore(contatore + 1)}</span><span class="tag">&gt;</span>
+        Incrementa
+      <span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<div class="callout error"><strong>⚠️ Regola fondamentale</strong> — Non modificare mai lo state direttamente. Usa sempre la funzione setter:<br><br>
+<code>contatore = 5</code>  ❌ React non si accorge del cambiamento<br>
+<code>setContatore(5)</code>  ✅ React ri-renderizza il componente</div>
+
+<h2>Contatore completo</h2>
+<pre><code><span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Contatore</span>() {
+  <span class="kw">const</span> [valore, setValore] = <span class="fn">useState</span>(<span class="num">0</span>);
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;h1&gt;</span><span class="jsx-expr">{valore}</span><span class="tag">&lt;/h1&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{() => setValore(valore + 1)}</span><span class="tag">&gt;</span>+1<span class="tag">&lt;/button&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{() => setValore(valore - 1)}</span><span class="tag">&gt;</span>-1<span class="tag">&lt;/button&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{() => setValore(0)}</span><span class="tag">&gt;</span>Reset<span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<h2>State con input (controlled component)</h2>
+<pre><code><span class="kw">function</span> <span class="fn">Modulo</span>() {
+  <span class="kw">const</span> [nome, setNome] = <span class="fn">useState</span>(<span class="str">''</span>);
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;input</span>
+        <span class="attr">type</span>=<span class="str">"text"</span>
+        <span class="attr">value</span>=<span class="jsx-expr">{nome}</span>
+        <span class="attr">onChange</span>=<span class="jsx-expr">{(e) => setNome(e.target.value)}</span>
+        <span class="attr">placeholder</span>=<span class="str">"Scrivi il tuo nome..."</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Ciao, <span class="jsx-expr">{nome || "sconosciuto"}</span>!<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<h2>State con oggetti</h2>
+<pre><code><span class="kw">function</span> <span class="fn">FormUtente</span>() {
+  <span class="kw">const</span> [utente, setUtente] = <span class="fn">useState</span>({ nome: <span class="str">''</span>, email: <span class="str">''</span> });
+
+  <span class="kw">function</span> <span class="fn">aggiorna</span>(campo, valore) {
+    <span class="fn">setUtente</span>({
+      ...utente,       <span class="cmt">// copia tutti i campi esistenti</span>
+      [campo]: valore  <span class="cmt">// sovrascrivi solo quello cambiato</span>
+    });
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;input</span>
+        <span class="attr">value</span>=<span class="jsx-expr">{utente.nome}</span>
+        <span class="attr">onChange</span>=<span class="jsx-expr">{(e) => aggiorna('nome', e.target.value)}</span>
+        <span class="attr">placeholder</span>=<span class="str">"Nome"</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;input</span>
+        <span class="attr">value</span>=<span class="jsx-expr">{utente.email}</span>
+        <span class="attr">onChange</span>=<span class="jsx-expr">{(e) => aggiorna('email', e.target.value)}</span>
+        <span class="attr">placeholder</span>=<span class="str">"Email"</span>
+      <span class="tag">/&gt;</span>
+      <span class="tag">&lt;p&gt;</span><span class="jsx-expr">{utente.nome}</span> – <span class="jsx-expr">{utente.email}</span><span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Cosa è lo state e perché esiste</li>
+<li>Come usare useState</li>
+<li>Come gestire input (controlled component)</li>
+<li>Come gestire state con oggetti</li>
+<li>Il ciclo render → cambiamento → re-render</li>
+</ul></div>`
+        },
+        {
+            module: "Modulo 1 — Fondamentali",
+            title: "Rendering condizionale e liste",
+            tags: ["condizionale", "liste", "filter", "map"],
+            content: `
+<h1>Rendering condizionale e liste</h1>
+<p class="subtitle">Mostrare o nascondere elementi e lavorare con array di dati.</p>
+
+<h2>Rendering condizionale</h2>
+
+<h3>1. Operatore ternario (il più usato)</h3>
+<pre><code><span class="kw">function</span> <span class="fn">Messaggio</span>({ isLogged }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="jsx-expr">{isLogged ? (</span>
+        <span class="tag">&lt;h2&gt;</span>Bentornato! 👋<span class="tag">&lt;/h2&gt;</span>
+      <span class="jsx-expr">) : (</span>
+        <span class="tag">&lt;h2&gt;</span>Effettua il login<span class="tag">&lt;/h2&gt;</span>
+      <span class="jsx-expr">)}</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<h3>2. Operatore && (mostra o niente)</h3>
+<pre><code><span class="kw">function</span> <span class="fn">Notifica</span>({ messaggi }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;h1&gt;</span>Inbox<span class="tag">&lt;/h1&gt;</span>
+      <span class="jsx-expr">{messaggi.length > 0 && (</span>
+        <span class="tag">&lt;p&gt;</span>Hai <span class="jsx-expr">{messaggi.length}</span> messaggi!<span class="tag">&lt;/p&gt;</span>
+      <span class="jsx-expr">)}</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<div class="callout warn"><strong>⚠️ Attenzione</strong> — Se la condizione è <code>0</code>, React lo stampa letteralmente come "0". Usa sempre <code>array.length > 0</code> e non <code>array.length</code> da solo.</div>
+
+<h3>3. If fuori dal JSX</h3>
+<pre><code><span class="kw">function</span> <span class="fn">Stato</span>({ valore }) {
+  <span class="kw">let</span> contenuto;
+
+  <span class="kw">if</span> (valore > <span class="num">100</span>) {
+    contenuto = <span class="tag">&lt;p</span> <span class="attr">style</span>=<span class="jsx-expr">{{color: 'green'}}</span><span class="tag">&gt;</span>Alto ✅<span class="tag">&lt;/p&gt;</span>;
+  } <span class="kw">else if</span> (valore > <span class="num">50</span>) {
+    contenuto = <span class="tag">&lt;p</span> <span class="attr">style</span>=<span class="jsx-expr">{{color: 'orange'}}</span><span class="tag">&gt;</span>Medio ⚠️<span class="tag">&lt;/p&gt;</span>;
+  } <span class="kw">else</span> {
+    contenuto = <span class="tag">&lt;p</span> <span class="attr">style</span>=<span class="jsx-expr">{{color: 'red'}}</span><span class="tag">&gt;</span>Basso ❌<span class="tag">&lt;/p&gt;</span>;
+  }
+
+  <span class="kw">return</span> <span class="tag">&lt;div&gt;</span><span class="jsx-expr">{contenuto}</span><span class="tag">&lt;/div&gt;</span>;
+}</code></pre>
+
+<h2>Liste avanzate</h2>
+
+<h3>Lista con oggetti</h3>
+<pre><code><span class="kw">const</span> utenti = [
+  { id: <span class="num">1</span>, nome: <span class="str">"Mario"</span>, attivo: <span class="kw">true</span> },
+  { id: <span class="num">2</span>, nome: <span class="str">"Giulia"</span>, attivo: <span class="kw">false</span> },
+];
+
+<span class="kw">return</span> (
+  <span class="tag">&lt;ul&gt;</span>
+    <span class="jsx-expr">{utenti.<span class="fn">map</span>((u) => (</span>
+      <span class="tag">&lt;li</span> <span class="attr">key</span>=<span class="jsx-expr">{u.id}</span><span class="tag">&gt;</span>
+        <span class="jsx-expr">{u.nome}</span> <span class="jsx-expr">{u.attivo && <span class="tag">&lt;span&gt;</span>🟢<span class="tag">&lt;/span&gt;</span>}</span>
+      <span class="tag">&lt;/li&gt;</span>
+    <span class="jsx-expr">))}</span>
+  <span class="tag">&lt;/ul&gt;</span>
+);</code></pre>
+
+<h3>Filtrare e mappare</h3>
+<pre><code><span class="jsx-expr">{utenti
+  .<span class="fn">filter</span>((u) => u.attivo)
+  .<span class="fn">map</span>((u) => (
+    <span class="tag">&lt;li</span> <span class="attr">key</span>=<span class="jsx-expr">{u.id}</span><span class="tag">&gt;</span><span class="jsx-expr">{u.nome}</span><span class="tag">&lt;/li&gt;</span>
+  ))}</span></code></pre>
+
+<h2>Todo List — metti tutto insieme</h2>
+<pre><code><span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">TodoList</span>() {
+  <span class="kw">const</span> [tasks, setTasks] = <span class="fn">useState</span>([
+    { id: <span class="num">1</span>, testo: <span class="str">"Imparare React"</span>, completata: <span class="kw">false</span> },
+    { id: <span class="num">2</span>, testo: <span class="str">"Fare la spesa"</span>, completata: <span class="kw">true</span> },
+  ]);
+  <span class="kw">const</span> [nuova, setNuova] = <span class="fn">useState</span>(<span class="str">''</span>);
+
+  <span class="kw">function</span> <span class="fn">aggiungi</span>() {
+    <span class="kw">if</span> (!nuova.<span class="fn">trim</span>()) <span class="kw">return</span>;
+    <span class="fn">setTasks</span>([...tasks, { id: Date.<span class="fn">now</span>(), testo: nuova, completata: <span class="kw">false</span> }]);
+    <span class="fn">setNuova</span>(<span class="str">''</span>);
+  }
+
+  <span class="kw">function</span> <span class="fn">toggle</span>(id) {
+    <span class="fn">setTasks</span>(tasks.<span class="fn">map</span>((t) =>
+      t.id === id ? { ...t, completata: !t.completata } : t
+    ));
+  }
+
+  <span class="kw">function</span> <span class="fn">elimina</span>(id) {
+    <span class="fn">setTasks</span>(tasks.<span class="fn">filter</span>((t) => t.id !== id));
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;input</span> <span class="attr">value</span>=<span class="jsx-expr">{nuova}</span> <span class="attr">onChange</span>=<span class="jsx-expr">{(e) => setNuova(e.target.value)}</span>
+        <span class="attr">onKeyDown</span>=<span class="jsx-expr">{(e) => e.key === 'Enter' && aggiungi()}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{aggiungi}</span><span class="tag">&gt;</span>Aggiungi<span class="tag">&lt;/button&gt;</span>
+      <span class="tag">&lt;ul&gt;</span>
+        <span class="jsx-expr">{tasks.<span class="fn">map</span>((task) => (</span>
+          <span class="tag">&lt;li</span> <span class="attr">key</span>=<span class="jsx-expr">{task.id}</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;span</span>
+              <span class="attr">onClick</span>=<span class="jsx-expr">{() => toggle(task.id)}</span>
+              <span class="attr">style</span>=<span class="jsx-expr">{{textDecoration: task.completata ? 'line-through':'none'}}</span>
+            <span class="tag">&gt;</span><span class="jsx-expr">{task.testo}</span><span class="tag">&lt;/span&gt;</span>
+            <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{() => elimina(task.id)}</span><span class="tag">&gt;</span>🗑️<span class="tag">&lt;/button&gt;</span>
+          <span class="tag">&lt;/li&gt;</span>
+        <span class="jsx-expr">))}</span>
+      <span class="tag">&lt;/ul&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<div class="done-banner"><h3>🎉 Modulo 1 Completato!</h3><p>Hai le basi solide di React. Ora passiamo agli Hook essenziali.</p></div>
+<div class="exercise"><h4>💪 Esercizio</h4><p>Costruisci una "Lista della spesa" con aggiunta, eliminazione e spunta degli articoli. È il modo migliore per consolidare tutto!</p></div>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Rendering condizionale con ternario e &&</li>
+<li>Liste dinamiche con .map() e .filter()</li>
+<li>Combinare state e liste</li>
+</ul></div>`
+        },
+
+        // ── MODULO 2 ──────────────────────────────────────────────
+        {
+            module: "Modulo 2 — Hook Essenziali",
+            title: "useEffect",
+            tags: ["useEffect", "effetti", "lifecycle"],
+            content: `
+<h1>useEffect</h1>
+<p class="subtitle">Effetti collaterali, ciclo di vita e sincronizzazione con sistemi esterni.</p>
+
+<h2>Cos'è un effetto?</h2>
+<p>Un <strong>effetto collaterale</strong> è qualsiasi operazione che va oltre il rendering: fetch di dati, aggiornamento del titolo della pagina, timer, sottoscrizioni a eventi.</p>
+<p><code>useEffect</code> ti permette di eseguire questi effetti dopo che il componente è stato renderizzato.</p>
+
+<h2>Sintassi base</h2>
+<pre><code><span class="kw">import</span> { useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="fn">useEffect</span>(() => {
+  <span class="cmt">// codice eseguito dopo ogni render</span>
+});</code></pre>
+
+<h2>Il secondo argomento: dependency array</h2>
+<pre><code><span class="cmt">// ❌ Senza dependency array — si esegue dopo OGNI render</span>
+<span class="fn">useEffect</span>(() => { ... });
+
+<span class="cmt">// ✅ Array vuoto — si esegue SOLO al primo render (mount)</span>
+<span class="fn">useEffect</span>(() => { ... }, []);
+
+<span class="cmt">// ✅ Con dipendenze — si esegue quando "valore" cambia</span>
+<span class="fn">useEffect</span>(() => { ... }, [valore]);</code></pre>
+
+<h2>Esempio: aggiornare il titolo</h2>
+<pre><code><span class="kw">import</span> { useState, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Contatore</span>() {
+  <span class="kw">const</span> [count, setCount] = <span class="fn">useState</span>(<span class="num">0</span>);
+
+  <span class="fn">useEffect</span>(() => {
+    document.title = <span class="str">\`Hai cliccato \${count} volte\`</span>;
+  }, [count]); <span class="cmt">// si aggiorna solo quando count cambia</span>
+
+  <span class="kw">return</span> <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{() => setCount(count + 1)}</span><span class="tag">&gt;</span>Clicca (<span class="jsx-expr">{count}</span>)<span class="tag">&lt;/button&gt;</span>;
+}</code></pre>
+
+<h2>Fetch dati (pattern classico)</h2>
+<pre><code><span class="kw">import</span> { useState, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Utenti</span>() {
+  <span class="kw">const</span> [utenti, setUtenti] = <span class="fn">useState</span>([]);
+  <span class="kw">const</span> [loading, setLoading] = <span class="fn">useState</span>(<span class="kw">true</span>);
+  <span class="kw">const</span> [errore, setErrore] = <span class="fn">useState</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() => {
+    <span class="fn">fetch</span>(<span class="str">'https://jsonplaceholder.typicode.com/users'</span>)
+      .<span class="fn">then</span>((res) => res.<span class="fn">json</span>())
+      .<span class="fn">then</span>((dati) => {
+        <span class="fn">setUtenti</span>(dati);
+        <span class="fn">setLoading</span>(<span class="kw">false</span>);
+      })
+      .<span class="fn">catch</span>((err) => {
+        <span class="fn">setErrore</span>(err.message);
+        <span class="fn">setLoading</span>(<span class="kw">false</span>);
+      });
+  }, []); <span class="cmt">// [] = solo al mount</span>
+
+  <span class="kw">if</span> (loading) <span class="kw">return</span> <span class="tag">&lt;p&gt;</span>Caricamento...<span class="tag">&lt;/p&gt;</span>;
+  <span class="kw">if</span> (errore) <span class="kw">return</span> <span class="tag">&lt;p&gt;</span>Errore: <span class="jsx-expr">{errore}</span><span class="tag">&lt;/p&gt;</span>;
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;ul&gt;</span>
+      <span class="jsx-expr">{utenti.<span class="fn">map</span>((u) => <span class="tag">&lt;li</span> <span class="attr">key</span>=<span class="jsx-expr">{u.id}</span><span class="tag">&gt;</span><span class="jsx-expr">{u.name}</span><span class="tag">&lt;/li&gt;</span>)}</span>
+    <span class="tag">&lt;/ul&gt;</span>
+  );
+}</code></pre>
+
+<h2>Cleanup: evitare memory leak</h2>
+<pre><code><span class="fn">useEffect</span>(() => {
+  <span class="kw">const</span> timer = <span class="fn">setInterval</span>(() => {
+    <span class="fn">setTempo</span>((t) => t + <span class="num">1</span>);
+  }, <span class="num">1000</span>);
+
+  <span class="cmt">// La funzione di ritorno viene chiamata al cleanup</span>
+  <span class="kw">return</span> () => <span class="fn">clearInterval</span>(timer);
+}, []);</code></pre>
+
+<div class="callout"><strong>💡 Regola pratica</strong> — Se il tuo effetto avvia qualcosa (timer, listener, subscription), la funzione di ritorno deve fermarlo. Altrimenti rischi memory leak.</div>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Cos'è un effetto collaterale</li>
+<li>Come usare useEffect con e senza dipendenze</li>
+<li>Pattern per fetch dati</li>
+<li>Come fare cleanup con la funzione di ritorno</li>
+</ul></div>`
+        },
+        {
+            module: "Modulo 2 — Hook Essenziali",
+            title: "useRef",
+            tags: ["useRef", "dom", "ref"],
+            content: `
+<h1>useRef</h1>
+<p class="subtitle">Riferimenti al DOM e valori persistenti senza causare re-render.</p>
+
+<h2>Cos'è useRef?</h2>
+<p><code>useRef</code> restituisce un oggetto <code>{ current: valore }</code> che persiste tra i render. A differenza dello state, <strong>modificare ref.current non causa un re-render</strong>.</p>
+
+<p>Si usa principalmente per due scopi:</p>
+<ul>
+<li>Accedere direttamente a elementi del DOM</li>
+<li>Tenere un valore che deve persistere ma non innescare re-render</li>
+</ul>
+
+<h2>Accedere al DOM</h2>
+<pre><code><span class="kw">import</span> { useRef } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">FocusInput</span>() {
+  <span class="kw">const</span> inputRef = <span class="fn">useRef</span>(<span class="kw">null</span>);
+
+  <span class="kw">function</span> <span class="fn">focusInput</span>() {
+    inputRef.current.<span class="fn">focus</span>(); <span class="cmt">// accesso diretto al nodo DOM</span>
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;input</span> <span class="attr">ref</span>=<span class="jsx-expr">{inputRef}</span> <span class="attr">placeholder</span>=<span class="str">"Clicca il bottone..."</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{focusInput}</span><span class="tag">&gt;</span>Focus<span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<h2>Valore persistente senza re-render</h2>
+<pre><code><span class="kw">import</span> { useRef, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Cronometro</span>() {
+  <span class="kw">const</span> [tempo, setTempo] = <span class="fn">useState</span>(<span class="num">0</span>);
+  <span class="kw">const</span> intervalRef = <span class="fn">useRef</span>(<span class="kw">null</span>);
+
+  <span class="kw">function</span> <span class="fn">start</span>() {
+    intervalRef.current = <span class="fn">setInterval</span>(() => {
+      <span class="fn">setTempo</span>((t) => t + <span class="num">1</span>);
+    }, <span class="num">1000</span>);
+  }
+
+  <span class="kw">function</span> <span class="fn">stop</span>() {
+    <span class="fn">clearInterval</span>(intervalRef.current);
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;p&gt;</span><span class="jsx-expr">{tempo}</span>s<span class="tag">&lt;/p&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{start}</span><span class="tag">&gt;</span>Start<span class="tag">&lt;/button&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{stop}</span><span class="tag">&gt;</span>Stop<span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<h2>Tenere il valore precedente</h2>
+<pre><code><span class="kw">function</span> <span class="fn">usePrevious</span>(valore) {
+  <span class="kw">const</span> ref = <span class="fn">useRef</span>();
+
+  <span class="fn">useEffect</span>(() => {
+    ref.current = valore; <span class="cmt">// aggiornato DOPO il render</span>
+  });
+
+  <span class="kw">return</span> ref.current; <span class="cmt">// restituisce il valore precedente</span>
+}
+
+<span class="kw">function</span> <span class="fn">Componente</span>() {
+  <span class="kw">const</span> [count, setCount] = <span class="fn">useState</span>(<span class="num">0</span>);
+  <span class="kw">const</span> prevCount = <span class="fn">usePrevious</span>(count);
+
+  <span class="kw">return</span> <span class="tag">&lt;p&gt;</span>Ora: <span class="jsx-expr">{count}</span>, prima: <span class="jsx-expr">{prevCount}</span><span class="tag">&lt;/p&gt;</span>;
+}</code></pre>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Cos'è useRef e come funziona</li>
+<li>Come accedere al DOM con ref</li>
+<li>Come tenere valori persistenti senza re-render</li>
+<li>Pattern del valore precedente</li>
+</ul></div>`
+        },
+        {
+            module: "Modulo 2 — Hook Essenziali",
+            title: "useContext",
+            tags: ["useContext", "context", "stato globale"],
+            content: `
+<h1>useContext</h1>
+<p class="subtitle">Condividere dati tra componenti senza passare props a ogni livello.</p>
+
+<h2>Il problema: prop drilling</h2>
+<p>Immagina di dover passare un tema (chiaro/scuro) da <code>App</code> a un componente profondamente annidato. Dovresti passare la prop attraverso tutti i livelli intermedi — anche quelli che non la usano. Questo si chiama <strong>prop drilling</strong> ed è fastidioso.</p>
+
+<p><strong>Context</strong> risolve questo: metti il dato in un "contenitore globale" e qualsiasi componente può leggerlo direttamente.</p>
+
+<h2>I 3 passi</h2>
+<pre><code><span class="cmt">// 1. Crea il Context</span>
+<span class="kw">import</span> { createContext, useContext, useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">const</span> TemaContext = <span class="fn">createContext</span>(<span class="kw">null</span>);
+
+<span class="cmt">// 2. Fornisci il valore con Provider</span>
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [tema, setTema] = <span class="fn">useState</span>(<span class="str">'chiaro'</span>);
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;TemaContext.Provider</span> <span class="attr">value</span>=<span class="jsx-expr">{{ tema, setTema }}</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;PaginaPrincipale /&gt;</span>
+    <span class="tag">&lt;/TemaContext.Provider&gt;</span>
+  );
+}
+
+<span class="cmt">// 3. Consuma il valore con useContext (in qualsiasi figlio)</span>
+<span class="kw">function</span> <span class="fn">Bottone</span>() {
+  <span class="kw">const</span> { tema, setTema } = <span class="fn">useContext</span>(TemaContext);
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{() => setTema(tema === 'chiaro' ? 'scuro' : 'chiaro')}</span><span class="tag">&gt;</span>
+      Tema attuale: <span class="jsx-expr">{tema}</span>
+    <span class="tag">&lt;/button&gt;</span>
+  );
+}</code></pre>
+
+<h2>Pattern consigliato: custom hook + provider</h2>
+<pre><code><span class="cmt">// TemaContext.jsx</span>
+<span class="kw">const</span> TemaContext = <span class="fn">createContext</span>(<span class="kw">null</span>);
+
+<span class="kw">export function</span> <span class="fn">TemaProvider</span>({ children }) {
+  <span class="kw">const</span> [tema, setTema] = <span class="fn">useState</span>(<span class="str">'chiaro'</span>);
+  <span class="kw">return</span> (
+    <span class="tag">&lt;TemaContext.Provider</span> <span class="attr">value</span>=<span class="jsx-expr">{{ tema, setTema }}</span><span class="tag">&gt;</span>
+      <span class="jsx-expr">{children}</span>
+    <span class="tag">&lt;/TemaContext.Provider&gt;</span>
+  );
+}
+
+<span class="kw">export function</span> <span class="fn">useTema</span>() {
+  <span class="kw">const</span> ctx = <span class="fn">useContext</span>(TemaContext);
+  <span class="kw">if</span> (!ctx) <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">'useTema deve essere dentro TemaProvider'</span>);
+  <span class="kw">return</span> ctx;
+}
+
+<span class="cmt">// Utilizzo in qualsiasi componente</span>
+<span class="kw">function</span> <span class="fn">MioComponente</span>() {
+  <span class="kw">const</span> { tema } = <span class="fn">useTema</span>();
+  <span class="kw">return</span> <span class="tag">&lt;p&gt;</span>Tema: <span class="jsx-expr">{tema}</span><span class="tag">&lt;/p&gt;</span>;
+}</code></pre>
+
+<div class="callout warn"><strong>⚠️ Quando NON usare Context</strong> — Context non è un sostituto dello state locale. Usalo per dati davvero globali: tema, autenticazione, lingua. Per stato locale o dati di una sezione specifica, le props vanno benissimo.</div>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Cos'è il prop drilling e perché è un problema</li>
+<li>Come creare e usare un Context</li>
+<li>Il pattern Provider + custom hook</li>
+<li>Quando usare (e non usare) Context</li>
+</ul></div>`
+        },
+        {
+            module: "Modulo 2 — Hook Essenziali",
+            title: "Custom Hooks",
+            tags: ["custom hooks", "riutilizzo", "astrazione"],
+            content: `
+<h1>Custom Hooks</h1>
+<p class="subtitle">Estrarre logica riutilizzabile in funzioni composabili.</p>
+
+<h2>Cos'è un custom hook?</h2>
+<p>Un custom hook è semplicemente una <strong>funzione JavaScript che inizia con "use"</strong> e può chiamare altri hook. Ti permette di estrarre logica riutilizzabile dai componenti.</p>
+
+<h2>Esempio: useFetch</h2>
+<pre><code><span class="kw">import</span> { useState, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">useFetch</span>(url) {
+  <span class="kw">const</span> [dati, setDati] = <span class="fn">useState</span>(<span class="kw">null</span>);
+  <span class="kw">const</span> [loading, setLoading] = <span class="fn">useState</span>(<span class="kw">true</span>);
+  <span class="kw">const</span> [errore, setErrore] = <span class="fn">useState</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() => {
+    <span class="fn">setLoading</span>(<span class="kw">true</span>);
+    <span class="fn">fetch</span>(url)
+      .<span class="fn">then</span>((r) => r.<span class="fn">json</span>())
+      .<span class="fn">then</span>(<span class="fn">setDati</span>)
+      .<span class="fn">catch</span>(<span class="fn">setErrore</span>)
+      .<span class="fn">finally</span>(() => <span class="fn">setLoading</span>(<span class="kw">false</span>));
+  }, [url]);
+
+  <span class="kw">return</span> { dati, loading, errore };
+}
+
+<span class="cmt">// Utilizzo — pulito e senza ripetizioni!</span>
+<span class="kw">function</span> <span class="fn">Utenti</span>() {
+  <span class="kw">const</span> { dati, loading } = <span class="fn">useFetch</span>(<span class="str">'https://api.example.com/utenti'</span>);
+  <span class="kw">if</span> (loading) <span class="kw">return</span> <span class="tag">&lt;p&gt;</span>Caricamento...<span class="tag">&lt;/p&gt;</span>;
+  <span class="kw">return</span> <span class="tag">&lt;ul&gt;</span><span class="jsx-expr">{dati.<span class="fn">map</span>((u) => <span class="tag">&lt;li</span> <span class="attr">key</span>=<span class="jsx-expr">{u.id}</span><span class="tag">&gt;</span><span class="jsx-expr">{u.name}</span><span class="tag">&lt;/li&gt;</span>)}</span><span class="tag">&lt;/ul&gt;</span>;
+}</code></pre>
+
+<h2>Esempio: useLocalStorage</h2>
+<pre><code><span class="kw">function</span> <span class="fn">useLocalStorage</span>(chiave, valoreIniziale) {
+  <span class="kw">const</span> [valore, setValore] = <span class="fn">useState</span>(() => {
+    <span class="kw">const</span> salvato = localStorage.<span class="fn">getItem</span>(chiave);
+    <span class="kw">return</span> salvato ? <span class="fn">JSON.parse</span>(salvato) : valoreIniziale;
+  });
+
+  <span class="kw">function</span> <span class="fn">aggiorna</span>(nuovoValore) {
+    <span class="fn">setValore</span>(nuovoValore);
+    localStorage.<span class="fn">setItem</span>(chiave, <span class="fn">JSON.stringify</span>(nuovoValore));
+  }
+
+  <span class="kw">return</span> [valore, aggiorna];
+}
+
+<span class="cmt">// Utilizzo — si comporta come useState ma persiste!</span>
+<span class="kw">const</span> [nome, setNome] = <span class="fn">useLocalStorage</span>(<span class="str">'nome-utente'</span>, <span class="str">''</span>);</code></pre>
+
+<h2>Esempio: useDebounce</h2>
+<pre><code><span class="kw">function</span> <span class="fn">useDebounce</span>(valore, delay = <span class="num">500</span>) {
+  <span class="kw">const</span> [debounced, setDebounced] = <span class="fn">useState</span>(valore);
+
+  <span class="fn">useEffect</span>(() => {
+    <span class="kw">const</span> timer = <span class="fn">setTimeout</span>(() => <span class="fn">setDebounced</span>(valore), delay);
+    <span class="kw">return</span> () => <span class="fn">clearTimeout</span>(timer);
+  }, [valore, delay]);
+
+  <span class="kw">return</span> debounced;
+}
+
+<span class="cmt">// Utile per ricerche — aspetta che l'utente smetta di scrivere</span>
+<span class="kw">function</span> <span class="fn">Ricerca</span>() {
+  <span class="kw">const</span> [query, setQuery] = <span class="fn">useState</span>(<span class="str">''</span>);
+  <span class="kw">const</span> queryDebounced = <span class="fn">useDebounce</span>(query, <span class="num">400</span>);
+
+  <span class="fn">useEffect</span>(() => {
+    <span class="kw">if</span> (queryDebounced) <span class="fn">cerca</span>(queryDebounced); <span class="cmt">// fetch solo dopo 400ms</span>
+  }, [queryDebounced]);
+}</code></pre>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Cos'è un custom hook</li>
+<li>Come creare useFetch per dati remoti</li>
+<li>Come creare useLocalStorage</li>
+<li>Pattern useDebounce per ricerche</li>
+</ul></div>`
+        },
+
+        // ── MODULO 3 ──────────────────────────────────────────────
+        {
+            module: "Modulo 3 — Gestione Dati",
+            title: "Fetch e dati asincroni",
+            tags: ["fetch", "async", "loading", "errori"],
+            content: `
+<h1>Fetch e dati asincroni</h1>
+<p class="subtitle">Comunicare con API esterne e gestire loading, errori e dati.</p>
+
+<h2>Il pattern dei 3 stati</h2>
+<p>Ogni richiesta asincrona ha sempre tre possibili stati: <strong>loading</strong>, <strong>successo</strong>, <strong>errore</strong>. Gestirli tutti è fondamentale per una buona UX.</p>
+
+<pre><code><span class="kw">const</span> [dati, setDati] = <span class="fn">useState</span>(<span class="kw">null</span>);
+<span class="kw">const</span> [loading, setLoading] = <span class="fn">useState</span>(<span class="kw">true</span>);
+<span class="kw">const</span> [errore, setErrore] = <span class="fn">useState</span>(<span class="kw">null</span>);</code></pre>
+
+<h2>Fetch con async/await</h2>
+<pre><code><span class="fn">useEffect</span>(() => {
+  <span class="kw">async function</span> <span class="fn">caricaDati</span>() {
+    <span class="kw">try</span> {
+      <span class="fn">setLoading</span>(<span class="kw">true</span>);
+      <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://api.example.com/posts'</span>);
+
+      <span class="kw">if</span> (!res.ok) <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">\`HTTP \${res.status}\`</span>);
+
+      <span class="kw">const</span> json = <span class="kw">await</span> res.<span class="fn">json</span>();
+      <span class="fn">setDati</span>(json);
+    } <span class="kw">catch</span> (err) {
+      <span class="fn">setErrore</span>(err.message);
+    } <span class="kw">finally</span> {
+      <span class="fn">setLoading</span>(<span class="kw">false</span>);
+    }
+  }
+
+  <span class="fn">caricaDati</span>();
+}, []);</code></pre>
+
+<h2>Evitare race conditions</h2>
+<pre><code><span class="fn">useEffect</span>(() => {
+  <span class="kw">let</span> cancelled = <span class="kw">false</span>;
+
+  <span class="kw">async function</span> <span class="fn">carica</span>() {
+    <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">\`/api/utente/\${id}\`</span>);
+    <span class="kw">const</span> dati = <span class="kw">await</span> res.<span class="fn">json</span>();
+
+    <span class="kw">if</span> (!cancelled) <span class="fn">setUtente</span>(dati); <span class="cmt">// aggiorna solo se ancora valido</span>
+  }
+
+  <span class="fn">carica</span>();
+  <span class="kw">return</span> () => { cancelled = <span class="kw">true</span>; }; <span class="cmt">// cleanup</span>
+}, [id]);</code></pre>
+
+<h2>Componente completo con fetch</h2>
+<pre><code><span class="kw">function</span> <span class="fn">ListaPost</span>() {
+  <span class="kw">const</span> [posts, setPosts] = <span class="fn">useState</span>([]);
+  <span class="kw">const</span> [loading, setLoading] = <span class="fn">useState</span>(<span class="kw">true</span>);
+  <span class="kw">const</span> [errore, setErrore] = <span class="fn">useState</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() => {
+    <span class="fn">fetch</span>(<span class="str">'https://jsonplaceholder.typicode.com/posts?_limit=5'</span>)
+      .<span class="fn">then</span>((r) => { <span class="kw">if</span> (!r.ok) <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">'Errore rete'</span>); <span class="kw">return</span> r.<span class="fn">json</span>(); })
+      .<span class="fn">then</span>(<span class="fn">setPosts</span>)
+      .<span class="fn">catch</span>((e) => <span class="fn">setErrore</span>(e.message))
+      .<span class="fn">finally</span>(() => <span class="fn">setLoading</span>(<span class="kw">false</span>));
+  }, []);
+
+  <span class="kw">if</span> (loading) <span class="kw">return</span> <span class="tag">&lt;div&gt;</span>⏳ Caricamento...<span class="tag">&lt;/div&gt;</span>;
+  <span class="kw">if</span> (errore) <span class="kw">return</span> <span class="tag">&lt;div</span> <span class="attr">style</span>=<span class="jsx-expr">{{color:'red'}}</span><span class="tag">&gt;</span>❌ <span class="jsx-expr">{errore}</span><span class="tag">&lt;/div&gt;</span>;
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;ul&gt;</span>
+      <span class="jsx-expr">{posts.<span class="fn">map</span>((p) => (</span>
+        <span class="tag">&lt;li</span> <span class="attr">key</span>=<span class="jsx-expr">{p.id}</span><span class="tag">&gt;</span><span class="tag">&lt;strong&gt;</span><span class="jsx-expr">{p.title}</span><span class="tag">&lt;/strong&gt;</span><span class="tag">&lt;/li&gt;</span>
+      <span class="jsx-expr">))}</span>
+    <span class="tag">&lt;/ul&gt;</span>
+  );
+}</code></pre>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Il pattern dei 3 stati (loading/dati/errore)</li>
+<li>Fetch con async/await in useEffect</li>
+<li>Come evitare race conditions</li>
+<li>Gestione errori HTTP</li>
+</ul></div>`
+        },
+        {
+            module: "Modulo 3 — Gestione Dati",
+            title: "Lifting state up",
+            tags: ["lifting state", "condivisione", "architettura"],
+            content: `
+<h1>Lifting State Up</h1>
+<p class="subtitle">Condividere stato tra componenti fratelli spostandolo al genitore comune.</p>
+
+<h2>Il problema</h2>
+<p>Due componenti fratelli hanno bisogno di condividere uno stesso dato. Come fare? Non puoi passare dati da un figlio all'altro direttamente — ma puoi spostare lo state al loro genitore comune e passarlo tramite props.</p>
+
+<h2>Esempio pratico: temperatura</h2>
+<pre><code><span class="cmt">// ❌ Prima — ogni componente ha il suo state separato</span>
+<span class="kw">function</span> <span class="fn">InputCelsius</span>() {
+  <span class="kw">const</span> [temp, setTemp] = <span class="fn">useState</span>(<span class="str">''</span>);
+  <span class="kw">return</span> <span class="tag">&lt;input</span> <span class="attr">value</span>=<span class="jsx-expr">{temp}</span> <span class="attr">onChange</span>=<span class="jsx-expr">{(e) => setTemp(e.target.value)}</span> <span class="tag">/&gt;</span>;
+}
+
+<span class="kw">function</span> <span class="fn">InputFahrenheit</span>() {
+  <span class="kw">const</span> [temp, setTemp] = <span class="fn">useState</span>(<span class="str">''</span>);
+  <span class="kw">return</span> <span class="tag">&lt;input</span> <span class="attr">value</span>=<span class="jsx-expr">{temp}</span> <span class="attr">onChange</span>=<span class="jsx-expr">{(e) => setTemp(e.target.value)}</span> <span class="tag">/&gt;</span>;
+}
+<span class="cmt">// I due input non si sincronizzano!</span></code></pre>
+
+<pre><code><span class="cmt">// ✅ Dopo — lo state è "sollevato" al genitore</span>
+<span class="kw">function</span> <span class="fn">InputCelsius</span>({ valore, onChange }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;label&gt;</span>
+      Celsius:
+      <span class="tag">&lt;input</span> <span class="attr">value</span>=<span class="jsx-expr">{valore}</span> <span class="attr">onChange</span>=<span class="jsx-expr">{(e) => onChange(e.target.value)}</span> <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/label&gt;</span>
+  );
+}
+
+<span class="kw">function</span> <span class="fn">InputFahrenheit</span>({ valore, onChange }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;label&gt;</span>
+      Fahrenheit:
+      <span class="tag">&lt;input</span> <span class="attr">value</span>=<span class="jsx-expr">{valore}</span> <span class="attr">onChange</span>=<span class="jsx-expr">{(e) => onChange(e.target.value)}</span> <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/label&gt;</span>
+  );
+}
+
+<span class="cmt">// Il genitore gestisce tutto lo state</span>
+<span class="kw">function</span> <span class="fn">Convertitore</span>() {
+  <span class="kw">const</span> [celsius, setCelsius] = <span class="fn">useState</span>(<span class="str">''</span>);
+
+  <span class="kw">const</span> fahrenheit = celsius ? (celsius * <span class="num">9</span>/<span class="num">5</span> + <span class="num">32</span>).<span class="fn">toFixed</span>(<span class="num">1</span>) : <span class="str">''</span>;
+
+  <span class="kw">function</span> <span class="fn">cambiaF</span>(f) {
+    <span class="fn">setCelsius</span>(f ? ((f - <span class="num">32</span>) * <span class="num">5</span>/<span class="num">9</span>).<span class="fn">toFixed</span>(<span class="num">1</span>) : <span class="str">''</span>);
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;InputCelsius</span> <span class="attr">valore</span>=<span class="jsx-expr">{celsius}</span> <span class="attr">onChange</span>=<span class="jsx-expr">{setCelsius}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;InputFahrenheit</span> <span class="attr">valore</span>=<span class="jsx-expr">{fahrenheit}</span> <span class="attr">onChange</span>=<span class="jsx-expr">{cambiaF}</span> <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<div class="callout"><strong>💡 Regola pratica</strong> — Metti lo state nel componente più basso nella gerarchia che ha bisogno di accedervi. Se due componenti hanno bisogno dello stesso dato, spostalo al loro genitore comune più vicino.</div>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Il concetto di lifting state up</li>
+<li>Come condividere stato tra componenti fratelli</li>
+<li>Il pattern "stato nel genitore, handler passati come props"</li>
+</ul></div>`
+        },
+
+        // ── MODULO 4 ──────────────────────────────────────────────
+        {
+            module: "Modulo 4 — Routing",
+            title: "React Router v6",
+            tags: ["routing", "react-router", "spa"],
+            content: `
+<h1>React Router v6</h1>
+<p class="subtitle">Navigazione client-side per Single Page Application.</p>
+
+<h2>Installazione</h2>
+<pre><code>npm install react-router-dom</code></pre>
+
+<h2>Setup base</h2>
+<pre><code><span class="cmt">// main.jsx</span>
+<span class="kw">import</span> { BrowserRouter } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="fn">createRoot</span>(document.<span class="fn">getElementById</span>(<span class="str">'root'</span>)).<span class="fn">render</span>(
+  <span class="tag">&lt;BrowserRouter&gt;</span>
+    <span class="tag">&lt;App /&gt;</span>
+  <span class="tag">&lt;/BrowserRouter&gt;</span>
+);</code></pre>
+
+<h2>Definire le route</h2>
+<pre><code><span class="kw">import</span> { Routes, Route } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;Routes&gt;</span>
+      <span class="tag">&lt;Route</span> <span class="attr">path</span>=<span class="str">"/"</span> <span class="attr">element</span>=<span class="jsx-expr">{&lt;Home /&gt;}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;Route</span> <span class="attr">path</span>=<span class="str">"/about"</span> <span class="attr">element</span>=<span class="jsx-expr">{&lt;About /&gt;}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;Route</span> <span class="attr">path</span>=<span class="str">"/utenti/:id"</span> <span class="attr">element</span>=<span class="jsx-expr">{&lt;Utente /&gt;}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;Route</span> <span class="attr">path</span>=<span class="str">"*"</span> <span class="attr">element</span>=<span class="jsx-expr">{&lt;NotFound /&gt;}</span> <span class="tag">/&gt;</span>
+    <span class="tag">&lt;/Routes&gt;</span>
+  );
+}</code></pre>
+
+<h2>Navigazione con Link</h2>
+<pre><code><span class="kw">import</span> { Link, NavLink } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="kw">function</span> <span class="fn">Navbar</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;nav&gt;</span>
+      <span class="tag">&lt;Link</span> <span class="attr">to</span>=<span class="str">"/"</span><span class="tag">&gt;</span>Home<span class="tag">&lt;/Link&gt;</span>
+      <span class="tag">&lt;Link</span> <span class="attr">to</span>=<span class="str">"/about"</span><span class="tag">&gt;</span>About<span class="tag">&lt;/Link&gt;</span>
+
+      <span class="cmt">// NavLink aggiunge classe "active" alla route corrente</span>
+      <span class="tag">&lt;NavLink</span>
+        <span class="attr">to</span>=<span class="str">"/profilo"</span>
+        <span class="attr">className</span>=<span class="jsx-expr">{({ isActive }) => isActive ? 'attivo' : ''}</span>
+      <span class="tag">&gt;</span>Profilo<span class="tag">&lt;/NavLink&gt;</span>
+    <span class="tag">&lt;/nav&gt;</span>
+  );
+}</code></pre>
+
+<h2>Route dinamiche con useParams</h2>
+<pre><code><span class="kw">import</span> { useParams } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="cmt">// Route: /utenti/:id</span>
+<span class="kw">function</span> <span class="fn">Utente</span>() {
+  <span class="kw">const</span> { id } = <span class="fn">useParams</span>();
+  <span class="kw">const</span> { dati, loading } = <span class="fn">useFetch</span>(<span class="str">\`/api/utenti/\${id}\`</span>);
+
+  <span class="kw">if</span> (loading) <span class="kw">return</span> <span class="tag">&lt;p&gt;</span>Caricamento...<span class="tag">&lt;/p&gt;</span>;
+  <span class="kw">return</span> <span class="tag">&lt;h1&gt;</span><span class="jsx-expr">{dati.nome}</span><span class="tag">&lt;/h1&gt;</span>;
+}</code></pre>
+
+<h2>Navigazione programmatica</h2>
+<pre><code><span class="kw">import</span> { useNavigate } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="kw">function</span> <span class="fn">Login</span>() {
+  <span class="kw">const</span> navigate = <span class="fn">useNavigate</span>();
+
+  <span class="kw">async function</span> <span class="fn">handleLogin</span>() {
+    <span class="kw">await</span> <span class="fn">loginAPI</span>();
+    <span class="fn">navigate</span>(<span class="str">'/dashboard'</span>); <span class="cmt">// redirect dopo login</span>
+  }
+
+  <span class="kw">return</span> <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{handleLogin}</span><span class="tag">&gt;</span>Login<span class="tag">&lt;/button&gt;</span>;
+}</code></pre>
+
+<h2>Layout condivisi (Outlet)</h2>
+<pre><code><span class="cmt">// Layout con navbar condivisa</span>
+<span class="kw">function</span> <span class="fn">Layout</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;&gt;</span>
+      <span class="tag">&lt;Navbar /&gt;</span>
+      <span class="tag">&lt;main&gt;</span>
+        <span class="tag">&lt;Outlet /&gt;</span> <span class="cmt">// qui vengono renderizzate le route figlie</span>
+      <span class="tag">&lt;/main&gt;</span>
+      <span class="tag">&lt;Footer /&gt;</span>
+    <span class="tag">&lt;/&gt;</span>
+  );
+}
+
+<span class="tag">&lt;Route</span> <span class="attr">path</span>=<span class="str">"/"</span> <span class="attr">element</span>=<span class="jsx-expr">{&lt;Layout /&gt;}</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;Route</span> <span class="attr">index</span> <span class="attr">element</span>=<span class="jsx-expr">{&lt;Home /&gt;}</span> <span class="tag">/&gt;</span>
+  <span class="tag">&lt;Route</span> <span class="attr">path</span>=<span class="str">"about"</span> <span class="attr">element</span>=<span class="jsx-expr">{&lt;About /&gt;}</span> <span class="tag">/&gt;</span>
+<span class="tag">&lt;/Route&gt;</span></code></pre>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Come configurare React Router</li>
+<li>Come definire e navigare tra route</li>
+<li>Route dinamiche con useParams</li>
+<li>Navigazione programmatica con useNavigate</li>
+<li>Layout condivisi con Outlet</li>
+</ul></div>`
+        },
+
+        // ── MODULO 5 ──────────────────────────────────────────────
+        {
+            module: "Modulo 5 — Stato Globale",
+            title: "useReducer",
+            tags: ["useReducer", "reducer", "actions"],
+            content: `
+<h1>useReducer</h1>
+<p class="subtitle">Gestire state complesso con logica centralizzata.</p>
+
+<h2>Quando usarlo?</h2>
+<p>Usa <code>useReducer</code> invece di <code>useState</code> quando:</p>
+<ul>
+<li>Lo state è un oggetto complesso con molti campi</li>
+<li>Il prossimo state dipende da quello precedente in modi complessi</li>
+<li>Hai molte operazioni diverse che modificano lo state</li>
+</ul>
+
+<h2>Anatomia di useReducer</h2>
+<pre><code><span class="kw">const</span> [state, dispatch] = <span class="fn">useReducer</span>(reducer, initialState);
+<span class="cmt">//     ^stato  ^funzione    ^pure function  ^valore iniziale</span></code></pre>
+
+<h2>Esempio: Todo con useReducer</h2>
+<pre><code><span class="kw">const</span> initialState = {
+  tasks: [],
+  filtro: <span class="str">'tutte'</span>
+};
+
+<span class="kw">function</span> <span class="fn">reducer</span>(state, action) {
+  <span class="kw">switch</span> (action.type) {
+    <span class="kw">case</span> <span class="str">'AGGIUNGI'</span>:
+      <span class="kw">return</span> {
+        ...state,
+        tasks: [...state.tasks, { id: Date.<span class="fn">now</span>(), testo: action.testo, done: <span class="kw">false</span> }]
+      };
+    <span class="kw">case</span> <span class="str">'TOGGLE'</span>:
+      <span class="kw">return</span> {
+        ...state,
+        tasks: state.tasks.<span class="fn">map</span>((t) =>
+          t.id === action.id ? { ...t, done: !t.done } : t
+        )
+      };
+    <span class="kw">case</span> <span class="str">'ELIMINA'</span>:
+      <span class="kw">return</span> { ...state, tasks: state.tasks.<span class="fn">filter</span>((t) => t.id !== action.id) };
+    <span class="kw">case</span> <span class="str">'SET_FILTRO'</span>:
+      <span class="kw">return</span> { ...state, filtro: action.filtro };
+    <span class="kw">default</span>:
+      <span class="kw">return</span> state;
+  }
+}
+
+<span class="kw">function</span> <span class="fn">TodoApp</span>() {
+  <span class="kw">const</span> [state, dispatch] = <span class="fn">useReducer</span>(reducer, initialState);
+  <span class="kw">const</span> [input, setInput] = <span class="fn">useState</span>(<span class="str">''</span>);
+
+  <span class="kw">function</span> <span class="fn">aggiungi</span>() {
+    <span class="kw">if</span> (!input.<span class="fn">trim</span>()) <span class="kw">return</span>;
+    <span class="fn">dispatch</span>({ type: <span class="str">'AGGIUNGI'</span>, testo: input });
+    <span class="fn">setInput</span>(<span class="str">''</span>);
+  }
+
+  <span class="kw">const</span> taskVisibili = state.tasks.<span class="fn">filter</span>((t) => {
+    <span class="kw">if</span> (state.filtro === <span class="str">'attive'</span>) <span class="kw">return</span> !t.done;
+    <span class="kw">if</span> (state.filtro === <span class="str">'completate'</span>) <span class="kw">return</span> t.done;
+    <span class="kw">return true</span>;
+  });
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;input</span> <span class="attr">value</span>=<span class="jsx-expr">{input}</span> <span class="attr">onChange</span>=<span class="jsx-expr">{(e) => setInput(e.target.value)}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{aggiungi}</span><span class="tag">&gt;</span>Aggiungi<span class="tag">&lt;/button&gt;</span>
+      <span class="jsx-expr">{taskVisibili.<span class="fn">map</span>((t) => (</span>
+        <span class="tag">&lt;div</span> <span class="attr">key</span>=<span class="jsx-expr">{t.id}</span><span class="tag">&gt;</span>
+          <span class="tag">&lt;span</span> <span class="attr">onClick</span>=<span class="jsx-expr">{() => dispatch({ type: 'TOGGLE', id: t.id })}</span><span class="tag">&gt;</span>
+            <span class="jsx-expr">{t.testo}</span>
+          <span class="tag">&lt;/span&gt;</span>
+          <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{() => dispatch({ type: 'ELIMINA', id: t.id })}</span><span class="tag">&gt;</span>🗑️<span class="tag">&lt;/button&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+      <span class="jsx-expr">))}</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Quando usare useReducer vs useState</li>
+<li>Come scrivere un reducer puro</li>
+<li>Come dispatchare azioni</li>
+<li>Come derivare dati dallo state (filtri)</li>
+</ul></div>`
+        },
+        {
+            module: "Modulo 5 — Stato Globale",
+            title: "Zustand",
+            tags: ["zustand", "store", "stato globale"],
+            content: `
+<h1>Zustand</h1>
+<p class="subtitle">Gestione dello stato globale semplice e senza boilerplate.</p>
+
+<h2>Perché Zustand?</h2>
+<p>Context + useReducer funzionano bene per casi semplici, ma per app più grandi Zustand offre un approccio più ergonomico: uno store centrale, senza Provider, senza boilerplate.</p>
+
+<h2>Installazione</h2>
+<pre><code>npm install zustand</code></pre>
+
+<h2>Creare uno store</h2>
+<pre><code><span class="kw">import</span> { create } <span class="kw">from</span> <span class="str">'zustand'</span>;
+
+<span class="kw">const</span> useCarrello = <span class="fn">create</span>((set) => ({
+  <span class="cmt">// State</span>
+  prodotti: [],
+  totale: <span class="num">0</span>,
+
+  <span class="cmt">// Azioni</span>
+  aggiungi: (prodotto) =>
+    <span class="fn">set</span>((state) => ({
+      prodotti: [...state.prodotti, prodotto],
+      totale: state.totale + prodotto.prezzo
+    })),
+
+  rimuovi: (id) =>
+    <span class="fn">set</span>((state) => {
+      <span class="kw">const</span> prodotto = state.prodotti.<span class="fn">find</span>((p) => p.id === id);
+      <span class="kw">return</span> {
+        prodotti: state.prodotti.<span class="fn">filter</span>((p) => p.id !== id),
+        totale: state.totale - (prodotto?.prezzo ?? <span class="num">0</span>)
+      };
+    }),
+
+  svuota: () => <span class="fn">set</span>({ prodotti: [], totale: <span class="num">0</span> })
+}));</code></pre>
+
+<h2>Usare lo store nei componenti</h2>
+<pre><code><span class="cmt">// Seleziona solo i dati che ti servono</span>
+<span class="kw">function</span> <span class="fn">Carrello</span>() {
+  <span class="kw">const</span> { prodotti, totale, rimuovi } = <span class="fn">useCarrello</span>();
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;h2&gt;</span>Carrello (<span class="jsx-expr">{prodotti.length}</span> articoli)<span class="tag">&lt;/h2&gt;</span>
+      <span class="jsx-expr">{prodotti.<span class="fn">map</span>((p) => (</span>
+        <span class="tag">&lt;div</span> <span class="attr">key</span>=<span class="jsx-expr">{p.id}</span><span class="tag">&gt;</span>
+          <span class="jsx-expr">{p.nome}</span> — €<span class="jsx-expr">{p.prezzo}</span>
+          <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{() => rimuovi(p.id)}</span><span class="tag">&gt;</span>Rimuovi<span class="tag">&lt;/button&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+      <span class="jsx-expr">))}</span>
+      <span class="tag">&lt;p&gt;</span>Totale: €<span class="jsx-expr">{totale}</span><span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}
+
+<span class="kw">function</span> <span class="fn">PulsanteAggiungi</span>({ prodotto }) {
+  <span class="kw">const</span> aggiungi = <span class="fn">useCarrello</span>((state) => state.aggiungi);
+  <span class="cmt">// Selezionare solo quello che serve evita re-render inutili</span>
+
+  <span class="kw">return</span> <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{() => aggiungi(prodotto)}</span><span class="tag">&gt;</span>Aggiungi<span class="tag">&lt;/button&gt;</span>;
+}</code></pre>
+
+<div class="callout"><strong>💡 Seleziona solo quello che usi</strong> — Passare uno selector <code>useStore(state => state.x)</code> invece di destrutturare tutto fa sì che il componente si ri-renderizzi solo quando <code>x</code> cambia, non quando cambia qualsiasi cosa nello store.</div>
+
+<h2>Confronto con le alternative</h2>
+<pre><code><span class="cmt">// Context — per dati semplici e poco frequenti</span>
+<span class="cmt">// Zustand — per stato globale reattivo, medio-grandi app</span>
+<span class="cmt">// Redux Toolkit — per app enterprise con team grandi</span></code></pre>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Come creare uno store con Zustand</li>
+<li>Come leggere e aggiornare lo state globale</li>
+<li>Come ottimizzare con i selectors</li>
+<li>Quando scegliere Zustand vs Context vs Redux</li>
+</ul></div>`
+        },
+
+        // ── MODULO 6 ──────────────────────────────────────────────
+        {
+            module: "Modulo 6 — Performance",
+            title: "useMemo e useCallback",
+            tags: ["useMemo", "useCallback", "ottimizzazione"],
+            content: `
+<h1>useMemo e useCallback</h1>
+<p class="subtitle">Memoizzare valori e funzioni per evitare calcoli o render inutili.</p>
+
+<h2>Il problema: calcoli costosi ad ogni render</h2>
+<p>React ri-renderizza i componenti ogni volta che state o props cambiano. Se hai un calcolo pesante, viene rieseguito ad ogni render — anche se i dati di input non sono cambiati.</p>
+
+<h2>useMemo — memoizza un valore</h2>
+<pre><code><span class="kw">import</span> { useMemo } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">ListaOrdini</span>({ ordini, filtro }) {
+  <span class="cmt">// ❌ Senza useMemo — ricalcolato ad ogni render</span>
+  <span class="kw">const</span> ordiniFiltrati = ordini.<span class="fn">filter</span>((o) => o.stato === filtro);
+
+  <span class="cmt">// ✅ Con useMemo — ricalcolato solo se ordini o filtro cambiano</span>
+  <span class="kw">const</span> ordiniFiltrati = <span class="fn">useMemo</span>(
+    () => ordini.<span class="fn">filter</span>((o) => o.stato === filtro),
+    [ordini, filtro]
+  );
+
+  <span class="kw">return</span> <span class="tag">&lt;ul&gt;</span><span class="jsx-expr">{ordiniFiltrati.<span class="fn">map</span>((o) => <span class="tag">&lt;li</span> <span class="attr">key</span>=<span class="jsx-expr">{o.id}</span><span class="tag">&gt;</span><span class="jsx-expr">{o.nome}</span><span class="tag">&lt;/li&gt;</span>)}</span><span class="tag">&lt;/ul&gt;</span>;
+}</code></pre>
+
+<h2>useCallback — memoizza una funzione</h2>
+<pre><code><span class="kw">import</span> { useCallback } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Parent</span>() {
+  <span class="kw">const</span> [count, setCount] = <span class="fn">useState</span>(<span class="num">0</span>);
+
+  <span class="cmt">// ❌ Senza useCallback — nuova funzione ad ogni render</span>
+  <span class="kw">const</span> handleClick = () => <span class="fn">setCount</span>(count + <span class="num">1</span>);
+
+  <span class="cmt">// ✅ Con useCallback — stessa funzione finché count non cambia</span>
+  <span class="kw">const</span> handleClick = <span class="fn">useCallback</span>(
+    () => <span class="fn">setCount</span>((c) => c + <span class="num">1</span>),
+    [] <span class="cmt">// empty: usa la forma funzionale di setCount</span>
+  );
+
+  <span class="kw">return</span> <span class="tag">&lt;Figlio</span> <span class="attr">onClick</span>=<span class="jsx-expr">{handleClick}</span> <span class="tag">/&gt;</span>;
+}</code></pre>
+
+<h2>React.memo — evita re-render del figlio</h2>
+<pre><code><span class="kw">import</span> { memo } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="cmt">// Figlio si ri-renderizza solo se le props cambiano</span>
+<span class="kw">const</span> Figlio = <span class="fn">memo</span>(<span class="kw">function</span> <span class="fn">Figlio</span>({ onClick, label }) {
+  console.<span class="fn">log</span>(<span class="str">'Figlio renderizzato'</span>);
+  <span class="kw">return</span> <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{onClick}</span><span class="tag">&gt;</span><span class="jsx-expr">{label}</span><span class="tag">&lt;/button&gt;</span>;
+});</code></pre>
+
+<div class="callout warn"><strong>⚠️ Non abusarne!</strong> — useMemo e useCallback hanno un costo. Aggiungili solo quando hai <em>misurato</em> un problema di performance, non preventivamente. La maggior parte dei componenti React è già abbastanza veloce senza ottimizzazioni.</div>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Quando usare useMemo per valori costosi</li>
+<li>Quando usare useCallback per funzioni stabili</li>
+<li>Come React.memo evita re-render inutili</li>
+<li>Quando NON usare queste ottimizzazioni</li>
+</ul></div>`
+        },
+        {
+            module: "Modulo 6 — Performance",
+            title: "Lazy loading e Code Splitting",
+            tags: ["lazy", "suspense", "code splitting"],
+            content: `
+<h1>Lazy Loading e Code Splitting</h1>
+<p class="subtitle">Caricare componenti solo quando servono per ridurre il bundle iniziale.</p>
+
+<h2>Il problema</h2>
+<p>In un'app grande, il bundle JavaScript può diventare enorme. Se un utente visita solo la home, perché caricare il codice del pannello admin?</p>
+<p>Il <strong>code splitting</strong> risolve questo: divide il bundle in pezzi più piccoli caricati solo quando necessario.</p>
+
+<h2>React.lazy + Suspense</h2>
+<pre><code><span class="kw">import</span> { lazy, Suspense } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="cmt">// ❌ Import normale — tutto nel bundle iniziale</span>
+<span class="kw">import</span> PaginaAdmin <span class="kw">from</span> <span class="str">'./PaginaAdmin'</span>;
+
+<span class="cmt">// ✅ Import lazy — caricato solo quando serve</span>
+<span class="kw">const</span> PaginaAdmin = <span class="fn">lazy</span>(() => <span class="kw">import</span>(<span class="str">'./PaginaAdmin'</span>));
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;Suspense</span> <span class="attr">fallback</span>=<span class="jsx-expr">{&lt;div&gt;Caricamento...&lt;/div&gt;}</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;Routes&gt;</span>
+        <span class="tag">&lt;Route</span> <span class="attr">path</span>=<span class="str">"/"</span> <span class="attr">element</span>=<span class="jsx-expr">{&lt;Home /&gt;}</span> <span class="tag">/&gt;</span>
+        <span class="tag">&lt;Route</span> <span class="attr">path</span>=<span class="str">"/admin"</span> <span class="attr">element</span>=<span class="jsx-expr">{&lt;PaginaAdmin /&gt;}</span> <span class="tag">/&gt;</span>
+      <span class="tag">&lt;/Routes&gt;</span>
+    <span class="tag">&lt;/Suspense&gt;</span>
+  );
+}</code></pre>
+
+<h2>Lazy su componenti pesanti</h2>
+<pre><code><span class="cmt">// Carica un grafico pesante solo se l'utente lo vuole vedere</span>
+<span class="kw">const</span> GraficoHeavy = <span class="fn">lazy</span>(() => <span class="kw">import</span>(<span class="str">'./GraficoHeavy'</span>));
+
+<span class="kw">function</span> <span class="fn">Dashboard</span>() {
+  <span class="kw">const</span> [mostraGrafico, setMostraGrafico] = <span class="fn">useState</span>(<span class="kw">false</span>);
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>=<span class="jsx-expr">{() => setMostraGrafico(true)}</span><span class="tag">&gt;</span>Mostra grafico<span class="tag">&lt;/button&gt;</span>
+      <span class="jsx-expr">{mostraGrafico && (</span>
+        <span class="tag">&lt;Suspense</span> <span class="attr">fallback</span>=<span class="jsx-expr">{&lt;p&gt;Caricamento grafico...&lt;/p&gt;}</span><span class="tag">&gt;</span>
+          <span class="tag">&lt;GraficoHeavy /&gt;</span>
+        <span class="tag">&lt;/Suspense&gt;</span>
+      <span class="jsx-expr">)}</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</code></pre>
+
+<h2>Loader elegante con Suspense</h2>
+<pre><code><span class="kw">function</span> <span class="fn">Spinner</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div</span> <span class="attr">style</span>=<span class="jsx-expr">{{
+      display: 'flex', justifyContent: 'center',
+      alignItems: 'center', height: '100px'
+    }}</span><span class="tag">&gt;</span>
+      ⏳ Caricamento...
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}
+
+<span class="tag">&lt;Suspense</span> <span class="attr">fallback</span>=<span class="jsx-expr">{&lt;Spinner /&gt;}</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;ComponenteLazy /&gt;</span>
+<span class="tag">&lt;/Suspense&gt;</span></code></pre>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Cos'è il code splitting e perché è importante</li>
+<li>Come usare React.lazy per import dinamici</li>
+<li>Come usare Suspense per mostrare fallback</li>
+<li>Pattern per componenti pesanti on-demand</li>
+</ul></div>`
+        },
+        {
+            module: "Modulo 6 — Performance",
+            title: "Struttura di un progetto reale",
+            tags: ["architettura", "folder structure", "best practice"],
+            content: `
+<h1>Struttura di un progetto reale</h1>
+<p class="subtitle">Come organizzare file e cartelle in un'app React scalabile.</p>
+
+<h2>Struttura consigliata</h2>
+<pre><code>src/
+├── components/          <span class="cmt">← componenti UI riutilizzabili</span>
+│   ├── Button/
+│   │   ├── Button.jsx
+│   │   ├── Button.module.css
+│   │   └── index.js
+│   ├── Card/
+│   └── Modal/
+│
+├── pages/               <span class="cmt">← componenti di pagina (legati alle route)</span>
+│   ├── Home.jsx
+│   ├── About.jsx
+│   └── Dashboard.jsx
+│
+├── hooks/               <span class="cmt">← custom hooks</span>
+│   ├── useFetch.js
+│   ├── useAuth.js
+│   └── useDebounce.js
+│
+├── store/               <span class="cmt">← stato globale (Zustand o Context)</span>
+│   ├── authStore.js
+│   └── cartStore.js
+│
+├── services/            <span class="cmt">← logica API e comunicazione esterna</span>
+│   ├── api.js
+│   └── auth.js
+│
+├── utils/               <span class="cmt">← funzioni di utilità pure</span>
+│   ├── formatDate.js
+│   └── validators.js
+│
+├── App.jsx
+└── main.jsx</code></pre>
+
+<h2>Regola del barrel export</h2>
+<pre><code><span class="cmt">// components/index.js — esporta tutto da un posto</span>
+<span class="kw">export</span> { <span class="kw">default</span> <span class="kw">as</span> Button } <span class="kw">from</span> <span class="str">'./Button'</span>;
+<span class="kw">export</span> { <span class="kw">default</span> <span class="kw">as</span> Card } <span class="kw">from</span> <span class="str">'./Card'</span>;
+<span class="kw">export</span> { <span class="kw">default</span> <span class="kw">as</span> Modal } <span class="kw">from</span> <span class="str">'./Modal'</span>;
+
+<span class="cmt">// Import pulito nelle pagine</span>
+<span class="kw">import</span> { Button, Card, Modal } <span class="kw">from</span> <span class="str">'../components'</span>;</code></pre>
+
+<h2>Separare logica dalla UI</h2>
+<pre><code><span class="cmt">// ❌ Tutto mescolato nel componente</span>
+<span class="kw">function</span> <span class="fn">Utenti</span>() {
+  <span class="kw">const</span> [utenti, setUtenti] = <span class="fn">useState</span>([]);
+  <span class="fn">useEffect</span>(() => { <span class="cmt">/* fetch logic */</span> }, []);
+  <span class="kw">return</span> <span class="tag">&lt;ul&gt;</span><span class="jsx-expr">{/* render */}</span><span class="tag">&lt;/ul&gt;</span>;
+}
+
+<span class="cmt">// ✅ Logica nel hook, UI nel componente</span>
+<span class="kw">function</span> <span class="fn">useUtenti</span>() {
+  <span class="kw">const</span> [utenti, setUtenti] = <span class="fn">useState</span>([]);
+  <span class="fn">useEffect</span>(() => { <span class="cmt">/* fetch logic */</span> }, []);
+  <span class="kw">return</span> { utenti };
+}
+
+<span class="kw">function</span> <span class="fn">Utenti</span>() {
+  <span class="kw">const</span> { utenti } = <span class="fn">useUtenti</span>();
+  <span class="kw">return</span> <span class="tag">&lt;ul&gt;</span><span class="jsx-expr">{/* render pulito */}</span><span class="tag">&lt;/ul&gt;</span>;
+}</code></pre>
+
+<h2>Variabili d'ambiente</h2>
+<pre><code><span class="cmt">// .env</span>
+VITE_API_URL=https://api.example.com
+VITE_APP_NAME=MiaApp
+
+<span class="cmt">// Utilizzo nel codice</span>
+<span class="kw">const</span> apiUrl = import.meta.env.VITE_API_URL;</code></pre>
+
+<div class="callout"><strong>💡 Regola d'oro</strong> — Non pensarci troppo all'inizio. Comincia semplice, poi riorganizza quando senti che la struttura attuale ti rallenta. La migliore struttura è quella che il tuo team capisce.</div>
+
+<div class="done-banner"><h3>🎉 Corso React Completato!</h3><p>Hai coperto tutto il percorso — dalle basi agli hook avanzati, dal routing allo stato globale, fino alla performance e all'architettura.</p></div>
+
+<div class="exercise"><h4>💪 Progetto finale</h4><p>Costruisci un'app completa: un clone di una todo app con autenticazione simulata, routing con pagine protette, stato globale con Zustand, fetch da una API pubblica (es. JSONPlaceholder) e lazy loading delle pagine.</p></div>
+
+<div class="checklist"><h4>✅ Hai imparato</h4><ul>
+<li>Come strutturare un progetto React scalabile</li>
+<li>Barrel exports per import puliti</li>
+<li>Separazione logica/UI con custom hooks</li>
+<li>Gestione variabili d'ambiente con Vite</li>
+</ul></div>`
+        }
+    ];
+
+    // ── STATE ────────────────────────────────────────────────────
+    let currentIndex = 0;
+    let done = new Set(JSON.parse(localStorage.getItem('react-corso-done') || '[]'));
+
+    function saveDone() {
+        localStorage.setItem('react-corso-done', JSON.stringify([...done]));
+    }
+
+    // ── RENDER SIDEBAR ──────────────────────────────────────────
+    function renderNav() {
+        const nav = document.getElementById('nav');
+        nav.innerHTML = '';
+        const modules = {};
+        LESSONS.forEach((l, i) => {
+            if (!modules[l.module]) modules[l.module] = [];
+            modules[l.module].push({ ...l, i });
+        });
+
+        Object.entries(modules).forEach(([mod, lessons]) => {
+            const group = document.createElement('div');
+            group.className = 'module-group';
+
+            const allDone = lessons.every(l => done.has(l.i));
+            const anyActive = lessons.some(l => l.i === currentIndex);
+
+            const title = document.createElement('div');
+            title.className = 'module-title' + (anyActive ? ' active' : '');
+            title.innerHTML = `<span class="mod-icon"></span>${mod}`;
+            group.appendChild(title);
+
+            lessons.forEach(({ title: t, i }) => {
+                const btn = document.createElement('button');
+                btn.className = 'lesson-btn' + (i === currentIndex ? ' active' : '') + (done.has(i) ? ' done' : '');
+                btn.innerHTML = `<span class="lesson-num">${String(i+1).padStart(2,'0')}</span>${t}<span class="check">${done.has(i) ? '✓' : '·'}</span>`;
+                btn.onclick = () => goTo(i);
+                group.appendChild(btn);
+            });
+
+            nav.appendChild(group);
+        });
+
+        // progress
+        const pct = Math.round((done.size / LESSONS.length) * 100);
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('progress-text').textContent = `${done.size} / ${LESSONS.length}`;
+    }
+
+    // ── RENDER CONTENT ──────────────────────────────────────────
+    function renderContent() {
+        const lesson = LESSONS[currentIndex];
+        document.getElementById('breadcrumb').textContent = lesson.module;
+        document.getElementById('lesson-title-top').textContent = lesson.title;
+        document.getElementById('content').innerHTML = `<div class="lesson-content">${lesson.content}</div>`;
+        document.getElementById('content').scrollTop = 0;
+
+        document.getElementById('btn-prev').disabled = currentIndex === 0;
+
+        const nextBtn = document.getElementById('btn-next');
+        if (currentIndex === LESSONS.length - 1) {
+            nextBtn.textContent = done.has(currentIndex) ? '✓ Completato' : 'Completa corso ✓';
+        } else {
+            nextBtn.textContent = done.has(currentIndex) ? 'Successiva →' : 'Segna e vai avanti →';
+        }
+    }
+
+    // ── NAVIGATION ──────────────────────────────────────────────
+    function goTo(i) {
+        currentIndex = i;
+        renderNav();
+        renderContent();
+    }
+
+    function navigate(dir) {
+        // segna come fatto
+        done.add(currentIndex);
+        saveDone();
+
+        if (dir === 1 && currentIndex < LESSONS.length - 1) {
+            currentIndex++;
+        } else if (dir === -1 && currentIndex > 0) {
+            currentIndex--;
+        }
+        renderNav();
+        renderContent();
+    }
+
+    // ── INIT ────────────────────────────────────────────────────
+    renderNav();
+    renderContent();
+</script>
+</body>
+</html>
