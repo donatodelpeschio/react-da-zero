@@ -13,8 +13,8 @@ Un corso React completo, gratuito e interattivo in italiano. Apri il file nel br
 2. Aprilo nel browser (Chrome, Firefox, Safari — qualsiasi va bene)
 3. Studia una lezione alla volta usando la navigazione laterale
 
-Oppure, accedi direttamente al 
-corso [cliccando qui](https://donatodelpeschio.github.io/react-da-zero/).
+#### Oppure, accedi direttamente al corso [cliccando qui](https://donatodelpeschio.github.io/react-da-zero/).
+
 ---
 
 ## 📚 Contenuti
